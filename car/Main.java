@@ -1,8 +1,8 @@
 
 public class Main {
 	public static void Main(String[] args){
-		Car carObject = new Car("Renault", 10, 50,20, 1000, false);
+		Car carObject = new Car("Renault", "Megane", "ABC-123", new Location(0,0), 1);
 		
-		//carObject.saying();				
+
 	}
 }
