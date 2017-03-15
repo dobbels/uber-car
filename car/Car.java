@@ -6,8 +6,8 @@ public class Car {
     };
 
 	private State state = State.FREE;
-	private int destFrom, destTo, id;
-	private boolean passenger;
+	private Location destFrom, destTo, location;
+	private int id;
 	private String licensePlate, brand, type;
 	//TODO make Location-class or use some Pair-class
     //TODO maak toch trip-object om id, from en to bij te houden
@@ -15,22 +15,29 @@ public class Car {
 
     //InetAddress server = InetAddress.getByName("localhost"); //TODO change to real server address
 		
-	public Car(String brandPar, int destFromPar, int destToPar, int locationPar,
-               int idPar, boolean passengerPar){
+	public Car(String brandPar, String typePar, String licensePlatePar, Location locationPar, int idPar){
 		brand = brandPar;
-		destFrom = destFromPar;
-		destTo  = destToPar;
+		type = typePar;
+		licensePlate = licensePlatePar;
+//		destFrom = destFromPar;
+        destFrom = locationPar;
+//		destTo  = destToPar;
+        destTo = locationPar;
 		location =locationPar;
 		id = idPar;
-		passenger = passengerPar;
 	}
+
+	public void requestCar() {
+	    // TODO
+	    this.state = State.REQUESTED;
+    }
 	
 	public void passengerGetIn(){
-		this.passenger = true;
+		this.state = State.OCCUPIED;
 	}
 	
 	public void passengerGetOut(){
-		this.passenger = false;
+		this.state = State.FREE;
 	}
 	
 	public boolean atStartDestination(){
