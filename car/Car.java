@@ -1,3 +1,8 @@
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 
 public class Car {
 	
@@ -6,28 +11,25 @@ public class Car {
     };
 
 	private State state = State.FREE;
-	private Location destFrom, destTo, location;
+	private Location location;
+	private Trip trip = null;
 	private int id;
 	private String licensePlate, brand, type;
-	//TODO make Location-class or use some Pair-class
-    //TODO maak toch trip-object om id, from en to bij te houden
     //TODO switch-statement in the dispatch depending on state
-
-    //InetAddress server = InetAddress.getByName("localhost"); //TODO change to real server address
 		
 	public Car(String brandPar, String typePar, String licensePlatePar, Location locationPar, int idPar){
 		brand = brandPar;
 		type = typePar;
 		licensePlate = licensePlatePar;
 //		destFrom = destFromPar;
-        destFrom = locationPar;
+//        destFrom = locationPar;
 //		destTo  = destToPar;
-        destTo = locationPar;
+//        destTo = locationPar;
 		location =locationPar;
 		id = idPar;
 	}
 
-	public void requestCar() {
+	public void requestCar(int tripId) {
 	    // TODO
 	    this.state = State.REQUESTED;
     }
@@ -41,31 +43,47 @@ public class Car {
 	}
 	
 	public boolean atStartDestination(){
-		return this.location == this.destFrom;
+		return this.location == this.trip.getFrom();
 	}
 	
 	public boolean atEndDestination(){
-		return this.location == this.destTo;
+		return this.location == this.trip.getTo();
 	}
 
 	public void register() {
 	    // with carId, address and location
     }
 
-	public void startTrip(int id) {
+	public void sendStartTripMessage(int id) {
         // TODO put id in JSON type
         // http-post
         // handle response (if not 200, do we do anything?)
+        URL url = new URL("http://localhost/api/trip/start"); // TODO fill in server address
+        private URLConnection con = url.openConnection();
+        private HttpURLConnection http = (HttpURLConnection) con;
+        http.setRequestMethod("POST");
+        http.setDoOutput(true); // Indicates that we are going to send data over the connection
+
+        byte[] out = ("{\"id\":" + Integer.toString(this.tripId)).getBytes(StandardCharsets.UTF_8);
+        int length = out.length;
+
+        http.setFixedLengthStreamingMode(length);
+        http.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+        http.connect();
+        try(OutputStream os = http.getOutputStream()) {
+            os.write(out);
+        }
+        // Do something with http.getInputStream()
 	}
 
-    public void endTrip(int id) {
+    public void sendEndTripMessage(int id) {
 	    // TODO put id in JSON type
         // http-post
         // handle response (if not 200, do we do anything?)
     }
 
     /*TODO now: add all the properties and methods from doc to here
-            fill in http-requests (post) in startTrip and endTrip
+            fill in http-requests (post) in sendStartTripMessage and sendEndTripMessage
     */
 
     // from http://stackoverflow.com/questions/3324717/sending-http-post-request-in-java
