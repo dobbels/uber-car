@@ -15,7 +15,8 @@ public class Car {
 	private Trip trip = null;
 	private int id;
 	private String licensePlate, brand, type;
-    //TODO switch-statement in the dispatch depending on state
+
+	private String managingServer = "https://uber-server.herokuapp.com/";
 
     public void setTrip(Trip trip) {
         this.trip = trip;
@@ -65,7 +66,7 @@ public class Car {
      */
 	public boolean register() throws IOException {
 	    // the JSON-load contains carId, location and address as a String in format ID - LAT - LONG - x.x.x.x:yyyy/somepath
-        URL url = new URL("http://localhost/api/trip/car/register"); // TODO fill in server address
+        URL url = new URL(managingServer + "/api/trip/car/register");
         URLConnection con = url.openConnection();
         HttpURLConnection http = (HttpURLConnection) con;
 
@@ -134,7 +135,7 @@ public class Car {
         } else throw new IllegalArgumentException();
 
 //        URL url = new URL("http://httpbin.org/");
-        URL url = new URL("http://localhost/api/trip/" + mType); // TODO fill in server address
+        URL url = new URL(managingServer + "api/trip/" + mType);
         URLConnection con = url.openConnection();
         HttpURLConnection http = (HttpURLConnection) con;
 
