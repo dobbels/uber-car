@@ -2,6 +2,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 public class Car {
@@ -16,7 +17,7 @@ public class Car {
 	private int id;
 	private String licensePlate, brand, type;
 
-	private String managingServer = "https://uber-server.herokuapp.com/";
+	private String managingServer = "https://uber-server.herokuapp.com";
 
     public void setTrip(Trip trip) {
         this.trip = trip;
@@ -66,7 +67,7 @@ public class Car {
      */
 	public boolean register() throws IOException {
 	    // the JSON-load contains carId, location and address as a String in format ID - LAT - LONG - x.x.x.x:yyyy/somepath
-        URL url = new URL(managingServer + "/api/trip/car/register");
+        URL url = new URL(managingServer + "/api/car/register");
         URLConnection con = url.openConnection();
         HttpURLConnection http = (HttpURLConnection) con;
 
@@ -76,11 +77,10 @@ public class Car {
             http.setRequestMethod("POST");
             http.setDoOutput(true); // Indicates that we are going to send data over the connection
 
-            byte[] out = ("{\"id\":" + "\""
-                    + this.licensePlate + " - "
-                    + Integer.toString(this.location.getLatitude()) + " - "
-                    + Integer.toString(this.location.getLongitude()) + " - "
-                    + "x.x.x.x:yyyy/path" + "\"").getBytes(StandardCharsets.UTF_8);
+            byte[] out = ("{\"id\" : " + "\"" + this.licensePlate + "\","
+                    + "\"address\" : " + "\"" + "192.168.1.63:1234/uber-car\","
+                    + "\"lat\" : " + "\"" + Integer.toString(this.location.getLatitude()) + "\","
+                    + "\"lon\" : " + "\"" + Integer.toString(this.location.getLongitude()) + "\"}").getBytes(StandardCharsets.UTF_8); //TODO put actual ip-address of car
             int length = out.length;
 
             http.setFixedLengthStreamingMode(length);
@@ -90,15 +90,28 @@ public class Car {
             OutputStream os = http.getOutputStream();
             os.write(out);
 
-            int statusCode = http.getResponseCode();
+//            System.out.println(message.toString());
 
-            if (statusCode != 200) { // In case of a bad request, nothing changes. Only the statuscode is printed.
-                System.out.println(statusCode);
-                result = false;
+            int statusCode = http.getResponseCode();
+            System.out.println(statusCode);
+
+            InputStream is = null;
+
+            if (statusCode >= 200 && statusCode < 400) {
+                // Create an InputStream in order to extract the response object
+                is = http.getInputStream();
+            }
+            else {
+                if (statusCode == 400) {
+                    result = false;
+                }
+                is = http.getErrorStream();
             }
 
+
             BufferedReader in = new BufferedReader(
-                    new InputStreamReader(con.getInputStream()));
+                    new InputStreamReader(is));
+
             String output;
             StringBuffer response = new StringBuffer();
 
@@ -106,13 +119,9 @@ public class Car {
                 response.append(output);
             }
             in.close();
-
-            //printing result from response
-            System.out.println(response.toString());
-
-            return result;
+            System.out.println("Response to Registration: " + response.toString());
         }
-//
+
 //        catch (IOException io) {
 //            http.getErrorStream().close();
 //        }
@@ -120,6 +129,8 @@ public class Car {
         finally {
             http.disconnect();
         }
+
+        return result;
     }
 
     public enum messageType {
@@ -143,7 +154,7 @@ public class Car {
             http.setRequestMethod("POST");
             http.setDoOutput(true); // Indicates that we are going to send data over the connection
 //
-            byte[] out = ("{\"id\":" + "\"" + Integer.toString(this.trip.getId()) + "\"").getBytes(StandardCharsets.UTF_8);
+            byte[] out = ("{\"id\":" + "\"" + Integer.toString(this.trip.getId()) + "\"}").getBytes(StandardCharsets.UTF_8);
             int length = out.length;
 
             http.setFixedLengthStreamingMode(length);
@@ -170,7 +181,7 @@ public class Car {
             in.close();
 
             //printing result from response
-            System.out.println(response.toString());
+            System.out.println("Response to " + mType + "-trip message: " + response.toString());
         }
 //
 //        catch (IOException io) {

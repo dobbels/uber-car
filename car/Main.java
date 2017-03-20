@@ -5,8 +5,8 @@ public class Main {
 	public static void main(String[] args) throws IOException {
 		System.out.println("START TEST");
 
-		Car car = new Car("Renault", "Megane", "ABC-123", new Location(0,0), 1);
-		Trip trip = new Trip(5, new Location(2,3), new Location(5,6));
+		Car car = new Car("Renault", "Megane", "BCDE-123", new Location(0,0), 1);
+		Trip trip = new Trip(1121, new Location(2,3), new Location(5,6));
 
 //		car.setTrip(trip);
 
