@@ -1,5 +1,4 @@
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -17,6 +16,10 @@ public class Car {
 	private int id;
 	private String licensePlate, brand, type;
     //TODO switch-statement in the dispatch depending on state
+
+    public void setTrip(Trip trip) {
+        this.trip = trip;
+    }
 		
 	public Car(String brandPar, String typePar, String licensePlatePar, Location locationPar, int idPar){
 		brand = brandPar;
@@ -73,7 +76,7 @@ public class Car {
             http.setDoOutput(true); // Indicates that we are going to send data over the connection
 
             byte[] out = ("{\"id\":" + "\""
-                    + Integer.toString(this.id) + " - "
+                    + this.licensePlate + " - "
                     + Integer.toString(this.location.getLatitude()) + " - "
                     + Integer.toString(this.location.getLongitude()) + " - "
                     + "x.x.x.x:yyyy/path" + "\"").getBytes(StandardCharsets.UTF_8);
@@ -92,7 +95,20 @@ public class Car {
                 System.out.println(statusCode);
                 result = false;
             }
-            //TODO same InputStream handling as trip-message
+
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getInputStream()));
+            String output;
+            StringBuffer response = new StringBuffer();
+
+            while ((output = in.readLine()) != null) {
+                response.append(output);
+            }
+            in.close();
+
+            //printing result from response
+            System.out.println(response.toString());
+
             return result;
         }
 //
@@ -117,7 +133,7 @@ public class Car {
             mType = "end";
         } else throw new IllegalArgumentException();
 
-
+//        URL url = new URL("http://httpbin.org/");
         URL url = new URL("http://localhost/api/trip/" + mType); // TODO fill in server address
         URLConnection con = url.openConnection();
         HttpURLConnection http = (HttpURLConnection) con;
@@ -125,7 +141,7 @@ public class Car {
         try {
             http.setRequestMethod("POST");
             http.setDoOutput(true); // Indicates that we are going to send data over the connection
-
+//
             byte[] out = ("{\"id\":" + "\"" + Integer.toString(this.trip.getId()) + "\"").getBytes(StandardCharsets.UTF_8);
             int length = out.length;
 
@@ -141,10 +157,19 @@ public class Car {
             if (statusCode != 200) { // In case of a bad request, nothing changes. Only the statuscode is printed.
                 System.out.println(statusCode);
             }
-            //TODO : do anything with http.getInputStream() ? and .close() is afterwards ?
-            // See answer 4 in http://stackoverflow.com/questions/4767553/safe-use-of-httpurlconnection
-            // also javadoc: https://developer.android.com/reference/java/net/HttpURLConnection.html
 
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getInputStream()));
+            String output;
+            StringBuffer response = new StringBuffer();
+
+            while ((output = in.readLine()) != null) {
+                response.append(output);
+            }
+            in.close();
+
+            //printing result from response
+            System.out.println(response.toString());
         }
 //
 //        catch (IOException io) {
