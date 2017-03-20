@@ -90,8 +90,6 @@ public class Car {
             OutputStream os = http.getOutputStream();
             os.write(out);
 
-//            System.out.println(message.toString());
-
             int statusCode = http.getResponseCode();
             System.out.println(statusCode);
 
@@ -102,9 +100,7 @@ public class Car {
                 is = http.getInputStream();
             }
             else {
-                if (statusCode == 400) {
-                    result = false;
-                }
+                result = false;
                 is = http.getErrorStream();
             }
 
@@ -146,7 +142,7 @@ public class Car {
         } else throw new IllegalArgumentException();
 
 //        URL url = new URL("http://httpbin.org/");
-        URL url = new URL(managingServer + "api/trip/" + mType);
+        URL url = new URL(managingServer + "/api/trip/" + mType);
         URLConnection con = url.openConnection();
         HttpURLConnection http = (HttpURLConnection) con;
 
@@ -154,7 +150,7 @@ public class Car {
             http.setRequestMethod("POST");
             http.setDoOutput(true); // Indicates that we are going to send data over the connection
 //
-            byte[] out = ("{\"id\":" + "\"" + Integer.toString(this.trip.getId()) + "\"}").getBytes(StandardCharsets.UTF_8);
+            byte[] out = ("{\"id\":\"" + Integer.toString(this.trip.getId()) + "\"}").getBytes(StandardCharsets.UTF_8);
             int length = out.length;
 
             http.setFixedLengthStreamingMode(length);
@@ -165,13 +161,21 @@ public class Car {
             os.write(out);
 
             int statusCode = http.getResponseCode();
+            System.out.println(statusCode);
 
-            if (statusCode != 200) { // In case of a bad request, nothing changes. Only the statuscode is printed.
-                System.out.println(statusCode);
+            InputStream is = null;
+
+            if (statusCode >= 200 && statusCode < 400) {
+                // Create an InputStream in order to extract the response object
+                is = http.getInputStream();
+            }
+            else {
+                is = http.getErrorStream();
             }
 
+
             BufferedReader in = new BufferedReader(
-                    new InputStreamReader(con.getInputStream()));
+                    new InputStreamReader(is));
             String output;
             StringBuffer response = new StringBuffer();
 
@@ -179,8 +183,6 @@ public class Car {
                 response.append(output);
             }
             in.close();
-
-            //printing result from response
             System.out.println("Response to " + mType + "-trip message: " + response.toString());
         }
 //
