@@ -27,4 +27,10 @@ public class Location {
         return (loc.getLatitude() == this.latitude &&
         loc.getLongitude() == this.longitude);
     }
+    
+    public String getLocation() {
+    	String result = "";
+    	result = result + latitude + "," + longitude;
+    	return result;
+    }
 }

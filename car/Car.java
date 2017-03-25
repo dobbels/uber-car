@@ -1,9 +1,19 @@
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+
 
 public class Car {
 	
@@ -16,7 +26,11 @@ public class Car {
 	private Trip trip = null;
 	private int id;
 	private String licensePlate, brand, type;
+	private Direction d = new Direction();
+	private int speed = 30; // km/h
     //TODO switch-statement in the dispatch depending on state
+	
+	private final String USER_AGENT = "Mozilla/5.0";
 		
 	public Car(String brandPar, String typePar, String licensePlatePar, Location locationPar, int idPar){
 		brand = brandPar;
@@ -42,9 +56,10 @@ public class Car {
 		sendTripMessage(messageType.START);
 	}
 	
-	public void passengerGetOut()throws IOException {
+	public void passengerGetOut() throws IOException {
 		this.state = State.FREE;
 		sendTripMessage(messageType.END);
+		this.location = this.trip.getTo();
 	}
 	
 	public boolean atStartDestination(){
@@ -57,7 +72,7 @@ public class Car {
 
     /**
      *
-     * @return succes : returns false if registration failed
+     * @return success : returns false if registration failed
      * @throws IOException
      */
 	public boolean register() throws IOException {
@@ -195,4 +210,87 @@ public class Car {
 	   is = connection.getErrorStream();
 	}
      */
+    
+    
+    
+    public void move() throws InterruptedException {
+    	//Movement has to be programmed
+    	System.out.println("Car is moving");
+    	if (d.getDistance() > 0) {
+    		int dist = (speed * 1000)/60;
+    		if (d.advance(dist)) {
+    			//reached position
+    			
+    		}
+    	}
+    	else if(d.getDistance() < 0) {
+    		//movement does nothing because car doesn't have destination
+    		TimeUnit.SECONDS.sleep(1);
+    	}
+    	
+    	
+    }
+    
+    public boolean assignPassenger() {
+    	System.out.println("Passenger is assigned");
+    	return this.state == State.REQUESTED;
+    }
+    
+    public void calculateRoute() throws Exception {
+    	String origin;
+    	String destination;
+    	if (state == State.REQUESTED) {
+    		origin = location.getLocation();
+    		destination = trip.getFrom().getLocation();
+    	}
+    	else if (state == State.OCCUPIED) {
+    		origin = trip.getFrom().getLocation();
+    		destination = trip.getTo().getLocation();
+    	}
+    	String url = "https://maps.googleapis.com/maps/api/directions/json?origin="
+    			+ "Toronto" //origin
+    			+ "&destination="
+    			+ "Montreal" //destination
+    			+ "&key=AIzaSyB9NcE7_2N70hVgaG3O7FLlRU4Ahq3Ff7w";
+
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+
+		// optional default is GET
+		con.setRequestMethod("GET");
+
+		//add request header
+		con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+
+		int responseCode = con.getResponseCode();
+		System.out.println("\nSending 'GET' request to URL : " + url);
+		System.out.println("Response Code : " + responseCode);
+
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine;
+		StringBuffer response = new StringBuffer();
+
+		while ((inputLine = in.readLine()) != null) {
+			response.append(inputLine);
+		}
+		in.close();
+		
+		
+		
+		Object a=JSONValue.parse(response.toString());
+		JSONObject finalResult=(JSONObject) a;
+		
+		//print result
+		System.out.println(finalResult.get("routes"));
+		JSONArray j = (JSONArray) finalResult.get("routes");
+		JSONArray i = (JSONArray) ((JSONObject) j.get(0)).get("legs");
+		//System.out.println(i);
+		JSONObject dis = (JSONObject) ((JSONObject) i.get(0)).get("distance");
+		//System.out.println(dis);
+		d.setDistance((int) dis.get("value"));
+    	
+    }
+    
+    
 }
