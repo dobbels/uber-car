@@ -1,24 +1,27 @@
-import java.util.ArrayList;
+import java.io.IOException;
 
 
 public class Main {
-	public static void main(String[] args){
-		Car car = new Car("Renault", "Megane", "ABC-123", new Location(0,0), 1);
-		
-		try {
-			//car.calculateRoute();
-			Simulator s = new Simulator(); 
-			s.events = new ArrayList<Object>();
-			Movement m = new Movement();
-			m.car = car;
-			s.addEvent(m);
-			s.doAllEvents();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
+
+	public static void main(String[] args) throws IOException {
+		System.out.println("START TEST");
+
+		Car car = new Car("Renault", "Megane", "BCDE-123", new Location(0,0), 1);
+		Trip trip = new Trip(3, new Location(2,3), new Location(5,6));
+
+//		System.out.println("REGISTER AT SERVER");
+//		boolean registerResult = car.register();
+		// TODO abort everything when response is 400?
+//		System.out.println("Result of Register: " + Boolean.toString(registerResult));
+
+        System.out.println("SEND TRIP MESSAGE");
+        car.setTrip(trip);
+        car.sendTripMessage(Car.messageType.START);
+
+		System.out.println("END TEST");
+
 		//TODO at the start of everything run car.register() and if it returns false, repeat the registration or print mistake or something
+
+
 	}
 }

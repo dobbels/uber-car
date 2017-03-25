@@ -1,11 +1,9 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -31,6 +29,12 @@ public class Car {
     //TODO switch-statement in the dispatch depending on state
 	
 	private final String USER_AGENT = "Mozilla/5.0";
+
+	private String managingServer = "https://uber-server.herokuapp.com";
+
+    public void setTrip(Trip trip) {
+        this.trip = trip;
+    }
 		
 	public Car(String brandPar, String typePar, String licensePlatePar, Location locationPar, int idPar){
 		brand = brandPar;
@@ -77,7 +81,7 @@ public class Car {
      */
 	public boolean register() throws IOException {
 	    // the JSON-load contains carId, location and address as a String in format ID - LAT - LONG - x.x.x.x:yyyy/somepath
-        URL url = new URL("http://localhost/api/trip/car/register"); // TODO fill in server address
+        URL url = new URL(managingServer + "/api/car/register");
         URLConnection con = url.openConnection();
         HttpURLConnection http = (HttpURLConnection) con;
 
@@ -87,11 +91,10 @@ public class Car {
             http.setRequestMethod("POST");
             http.setDoOutput(true); // Indicates that we are going to send data over the connection
 
-            byte[] out = ("{\"id\":" + "\""
-                    + Integer.toString(this.id) + " - "
-                    + Integer.toString(this.location.getLatitude()) + " - "
-                    + Integer.toString(this.location.getLongitude()) + " - "
-                    + "x.x.x.x:yyyy/path" + "\"").getBytes(StandardCharsets.UTF_8);
+            byte[] out = ("{\"id\" : " + "\"" + this.licensePlate + "\","
+                    + "\"address\" : " + "\"" + "192.168.1.63:1234/uber-car\","
+                    + "\"lat\" : " + "\"" + Integer.toString(this.location.getLatitude()) + "\","
+                    + "\"lon\" : " + "\"" + Integer.toString(this.location.getLongitude()) + "\"}").getBytes(StandardCharsets.UTF_8); //TODO put actual ip-address of car
             int length = out.length;
 
             http.setFixedLengthStreamingMode(length);
@@ -102,15 +105,33 @@ public class Car {
             os.write(out);
 
             int statusCode = http.getResponseCode();
+            System.out.println(statusCode);
 
-            if (statusCode != 200) { // In case of a bad request, nothing changes. Only the statuscode is printed.
-                System.out.println(statusCode);
-                result = false;
+            InputStream is = null;
+
+            if (statusCode >= 200 && statusCode < 400) {
+                // Create an InputStream in order to extract the response object
+                is = http.getInputStream();
             }
-            //TODO same InputStream handling as trip-message
-            return result;
+            else {
+                result = false;
+                is = http.getErrorStream();
+            }
+
+
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(is));
+
+            String output;
+            StringBuffer response = new StringBuffer();
+
+            while ((output = in.readLine()) != null) {
+                response.append(output);
+            }
+            in.close();
+            System.out.println("Response to Registration: " + response.toString());
         }
-//
+
 //        catch (IOException io) {
 //            http.getErrorStream().close();
 //        }
@@ -118,6 +139,8 @@ public class Car {
         finally {
             http.disconnect();
         }
+
+        return result;
     }
 
     public enum messageType {
@@ -132,16 +155,16 @@ public class Car {
             mType = "end";
         } else throw new IllegalArgumentException();
 
-
-        URL url = new URL("http://localhost/api/trip/" + mType); // TODO fill in server address
+//        URL url = new URL("http://httpbin.org/");
+        URL url = new URL(managingServer + "/api/trip/" + mType);
         URLConnection con = url.openConnection();
         HttpURLConnection http = (HttpURLConnection) con;
 
         try {
             http.setRequestMethod("POST");
             http.setDoOutput(true); // Indicates that we are going to send data over the connection
-
-            byte[] out = ("{\"id\":" + "\"" + Integer.toString(this.trip.getId()) + "\"").getBytes(StandardCharsets.UTF_8);
+//
+            byte[] out = ("{\"id\":\"" + Integer.toString(this.trip.getId()) + "\"}").getBytes(StandardCharsets.UTF_8);
             int length = out.length;
 
             http.setFixedLengthStreamingMode(length);
@@ -152,14 +175,29 @@ public class Car {
             os.write(out);
 
             int statusCode = http.getResponseCode();
+            System.out.println(statusCode);
 
-            if (statusCode != 200) { // In case of a bad request, nothing changes. Only the statuscode is printed.
-                System.out.println(statusCode);
+            InputStream is = null;
+
+            if (statusCode >= 200 && statusCode < 400) {
+                // Create an InputStream in order to extract the response object
+                is = http.getInputStream();
             }
-            //TODO : do anything with http.getInputStream() ? and .close() is afterwards ?
-            // See answer 4 in http://stackoverflow.com/questions/4767553/safe-use-of-httpurlconnection
-            // also javadoc: https://developer.android.com/reference/java/net/HttpURLConnection.html
+            else {
+                is = http.getErrorStream();
+            }
 
+
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(is));
+            String output;
+            StringBuffer response = new StringBuffer();
+
+            while ((output = in.readLine()) != null) {
+                response.append(output);
+            }
+            in.close();
+            System.out.println("Response to " + mType + "-trip message: " + response.toString());
         }
 //
 //        catch (IOException io) {
