@@ -19,9 +19,9 @@ public class Car {
 	
 	public enum State {
         REQUESTED, OCCUPIED, FREE
-    };
+    }
 
-	private State state = State.FREE;
+    private State state = State.FREE;
 	private Location location;
 	private Trip trip = null;
 	private int id;
