@@ -1,3 +1,5 @@
+package car;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -25,7 +27,7 @@ public class Car {
 	private int id;
 	private String licensePlate, brand, type;
 	private Direction d = new Direction();
-	private int speed = 30; // km/h
+	private int speed = 400; // km/h
     //TODO switch-statement in the dispatch depending on state
 	
 	private final String USER_AGENT = "Mozilla/5.0";
@@ -34,13 +36,14 @@ public class Car {
 
     public void setTrip(Trip trip) {
         this.trip = trip;
+        this.state = State.REQUESTED;
     }
 		
 	public Car(String brandPar, String typePar, String licensePlatePar, Location locationPar, int idPar){
 		brand = brandPar;
 		type = typePar;
 		licensePlate = licensePlatePar;
-		location =locationPar;
+		location = locationPar;
 		id = idPar;
 	}
 
@@ -58,6 +61,12 @@ public class Car {
 	public void passengerGetIn() throws IOException {
 		this.state = State.OCCUPIED;
 		sendTripMessage(messageType.START);
+		try {
+			calculateRoute();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public void passengerGetOut() throws IOException {
@@ -67,11 +76,37 @@ public class Car {
 	}
 	
 	public boolean atStartDestination(){
-		return this.location == this.trip.getFrom();
+		if (this.trip == null) {
+			return false;
+		}
+		boolean result = this.location == this.trip.getFrom() && this.state == State.REQUESTED;
+		if (result) {
+			this.state = State.OCCUPIED;
+		}
+		return result;
 	}
 	
 	public boolean atEndDestination(){
-		return this.location == this.trip.getTo();
+		if (this.trip == null) {
+			return false;
+		}
+		boolean result = this.location == this.trip.getTo() && this.state == State.OCCUPIED;
+		if (result) {
+			this.state = State.FREE;
+		}
+		return result;
+	}
+	
+	public boolean atDestination() {
+		if (state == State.REQUESTED) {
+			return this.location == this.trip.getFrom();
+		}
+		else if (state == State.OCCUPIED) {
+			return this.location == this.trip.getTo();
+		}
+		else {
+			return false;
+		}
 	}
 
     /**
@@ -93,8 +128,8 @@ public class Car {
 
             byte[] out = ("{\"id\" : " + "\"" + this.licensePlate + "\","
                     + "\"address\" : " + "\"" + "192.168.1.63:1234/uber-car\","
-                    + "\"lat\" : " + "\"" + Integer.toString(this.location.getLatitude()) + "\","
-                    + "\"lon\" : " + "\"" + Integer.toString(this.location.getLongitude()) + "\"}").getBytes(StandardCharsets.UTF_8); //TODO put actual ip-address of car
+                    + "\"lat\" : " + "\"" + Double.toString(this.location.getLatitude()) + "\","
+                    + "\"lon\" : " + "\"" + Double.toString(this.location.getLongitude()) + "\"}").getBytes(StandardCharsets.UTF_8); //TODO put actual ip-address of car
             int length = out.length;
 
             http.setFixedLengthStreamingMode(length);
@@ -255,14 +290,33 @@ public class Car {
     	//Movement has to be programmed
     	System.out.println("Car is moving");
     	if (d.getDistance() > 0) {
+    		System.out.println("Moving to a destination");
     		int dist = (speed * 1000)/3600;
     		if (d.advance(dist)) {
     			//reached position
-    			
+    			if (this.state == State.REQUESTED) {
+    				this.location = this.trip.getFrom();
+    				try {
+						sendTripMessage(messageType.START);
+					} catch (IllegalArgumentException | IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+    			}
+    			else if (this.state == State.OCCUPIED) {
+    				this.location = this.trip.getTo();
+    				try {
+						sendTripMessage(messageType.END);
+					} catch (IllegalArgumentException | IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+    			}
     		}
     	}
-    	else if(d.getDistance() < 0) {
+    	else if(d.getDistance() <= 0) {
     		//movement does nothing because car doesn't have destination
+    		System.out.println("no destination");
     		TimeUnit.SECONDS.sleep(1);
     	}
     	
@@ -271,12 +325,28 @@ public class Car {
     
     public boolean assignPassenger() {
     	System.out.println("Passenger is assigned");
-    	return this.state == State.REQUESTED;
+    	if (this.state == State.REQUESTED) {
+    		System.out.println("calculating passenger destination");
+    		try {
+				calculateRoute();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    		return true;
+    	}
+    	else {
+    		return false;
+    	}
+    }
+    
+    public boolean isFree() {
+    	return this.state == State.FREE;
     }
     
     public void calculateRoute() throws Exception {
-    	String origin;
-    	String destination;
+    	String origin = "";
+    	String destination = "";
     	if (state == State.REQUESTED) {
     		origin = location.getLocation();
     		destination = trip.getFrom().getLocation();
@@ -286,9 +356,9 @@ public class Car {
     		destination = trip.getTo().getLocation();
     	}
     	String url = "https://maps.googleapis.com/maps/api/directions/json?origin="
-    			+ "Toronto" //origin
+    			+ origin
     			+ "&destination="
-    			+ "Montreal" //destination
+    			+ destination
     			+ "&key=AIzaSyB9NcE7_2N70hVgaG3O7FLlRU4Ahq3Ff7w";
 
 		URL obj = new URL(url);
@@ -314,10 +384,8 @@ public class Car {
 		}
 		in.close();
 		
-		
-		
-		Object a=JSONValue.parse(response.toString());
-		JSONObject finalResult=(JSONObject) a;
+		Object a = JSONValue.parse(response.toString());
+		JSONObject finalResult = (JSONObject) a;
 		
 		//print result
 		System.out.println(finalResult.get("routes"));
@@ -326,7 +394,8 @@ public class Car {
 		//System.out.println(i);
 		JSONObject dis = (JSONObject) ((JSONObject) i.get(0)).get("distance");
 		//System.out.println(dis);
-		d.setDistance((int) dis.get("value"));
+		long di = (long) dis.get("value");
+		d.setDistance(di);
     	
     }
     
