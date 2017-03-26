@@ -296,21 +296,9 @@ public class Car {
     			//reached position
     			if (this.state == State.REQUESTED) {
     				this.location = this.trip.getFrom();
-    				try {
-						sendTripMessage(messageType.START);
-					} catch (IllegalArgumentException | IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
     			}
     			else if (this.state == State.OCCUPIED) {
     				this.location = this.trip.getTo();
-    				try {
-						sendTripMessage(messageType.END);
-					} catch (IllegalArgumentException | IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
     			}
     		}
     	}
@@ -394,8 +382,8 @@ public class Car {
 		//System.out.println(i);
 		JSONObject dis = (JSONObject) ((JSONObject) i.get(0)).get("distance");
 		//System.out.println(dis);
-		long di = (long) dis.get("value");
-		d.setDistance(di);
+		Long dist = (Long) dis.get("value");
+		d.setDistance(dist.intValue());
     	
     }
     

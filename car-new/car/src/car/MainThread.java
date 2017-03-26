@@ -11,7 +11,6 @@ public class MainThread implements Runnable {
 	public void run() {
 		// TODO Auto-generated method stub
 		System.out.println("START TEST");
-		System.out.println("END TEST");
 		
 		s.events = new ArrayList<Object>();
 		Movement m = new Movement();
