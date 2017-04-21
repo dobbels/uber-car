@@ -17,6 +17,7 @@ public class CarListener implements javax.servlet.ServletContextListener {
 		// TODO Auto-generated method stub
 		MainThread t = new MainThread();
 		new Thread(t).start();
+		System.out.println("Init");
 	}
 
 }

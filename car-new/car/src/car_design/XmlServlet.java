@@ -6,15 +6,10 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-
-
-
-
-
 
 import org.json.JSONException;                         
 import org.json.JSONObject;                        //Using JSONObject class
@@ -25,6 +20,10 @@ public class XmlServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		//doPost(request, response);         //Automatically calls doPost() method
+		ServletOutputStream out = response.getOutputStream();
+		out.write("hello car users".getBytes());
+		out.flush();
+		out.close();
 	}
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
