@@ -57,7 +57,7 @@ public class Car {
                 result = true;
                 this.trip = new Trip(tripId, from, to);
         }
-        return result;
+        return result; 
     }
 	
 	public void passengerGetIn() throws IOException {
