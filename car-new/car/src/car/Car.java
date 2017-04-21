@@ -28,11 +28,14 @@ public class Car {
 	private String licensePlate, brand, type;
 	private Direction d = new Direction();
 	private int speed = 400; // km/h
+	private int step_position = 0;
+	private JSONArray steps;
     //TODO switch-statement in the dispatch depending on state
 	
 	private final String USER_AGENT = "Mozilla/5.0";
 
-	private String managingServer = "https://uber-server.herokuapp.com";
+	//private String managingServer = "https://uber-server.herokuapp.com";
+	private String managingServer = "https://192.128.1.1";
 
     public void setTrip(Trip trip) {
         this.trip = trip;
@@ -293,13 +296,8 @@ public class Car {
     		System.out.println("Moving to a destination");
     		int dist = (speed * 1000)/3600;
     		if (d.advance(dist)) {
-    			//reached position
-    			if (this.state == State.REQUESTED) {
-    				this.location = this.trip.getFrom();
-    			}
-    			else if (this.state == State.OCCUPIED) {
-    				this.location = this.trip.getTo();
-    			}
+    			//reached end of step
+    			next_step();
     		}
     	}
     	else if(d.getDistance() <= 0) {
@@ -379,12 +377,56 @@ public class Car {
 		System.out.println(finalResult.get("routes"));
 		JSONArray j = (JSONArray) finalResult.get("routes");
 		JSONArray i = (JSONArray) ((JSONObject) j.get(0)).get("legs");
-		//System.out.println(i);
-		JSONObject dis = (JSONObject) ((JSONObject) i.get(0)).get("distance");
-		//System.out.println(dis);
+		steps = ((JSONObject) i.get(0)).get("steps");
+		
+		JSONObject step = steps.get(step_position);
+		step_position++;
+		JSONObject dis = step.get("distance");
 		Long dist = (Long) dis.get("value");
 		d.setDistance(dist.intValue());
+		JSONObject loc = step.get("end_location");
+		double lat = (double) loc.get("lat");
+		double lng = (double) loc.get("lng");
+		Location l = new Location(lat, lng);
+		d.setLocation(l);
+		
+		System.out.println("steps: ");
+		System.out.println(lat);
+		System.out.println(lng);
+		System.out.println(d.getDistance());
+		System.out.println(steps.size());
+		
+		
+		//System.out.println(i);
+		//JSONObject dis = (JSONObject) ((JSONObject) i.get(0)).get("distance");
+		//System.out.println(dis);
+		//Long dist = (Long) dis.get("value");
+		//d.setDistance(dist.intValue());
     	
+    }
+    
+    public void next_step() {
+    	if (step_position >= steps.size()) {
+    		if (this.state == State.REQUESTED) {
+				this.location = this.trip.getFrom();
+			}
+			else if (this.state == State.OCCUPIED) {
+				this.location = this.trip.getTo();
+			}
+    		step_position = 0;
+    	}
+    	else {
+    		JSONObject step = steps.get(step_position);
+    		step_position++;
+    		JSONObject dis = step.get("distance");
+    		Long dist = (Long) dis.get("value");
+    		d.setDistance(dist.intValue());
+    		JSONObject loc = step.get("end_location");
+    		double lat = (double) loc.get("lat");
+    		double lng = (double) loc.get("lng");
+    		Location l = new Location(lat, lng);
+    		d.setLocation(l);
+    	}
     }
     
     

@@ -45,7 +45,7 @@ public class XmlServlet extends HttpServlet {
 		double myLat = -1, myLon = -1, myLat2 = -1, myLon2 = -1;   
 		try {
 			 jsonObj = new JSONObject(str);     //JSONObject contains the received data
-			 myId = jsonObj.getInt("id");       //Gets the value of "id" key from JSONObject
+			 myId = jsonObj.getInt("trip_id");       //Gets the value of "id" key from JSONObject
 			 myLat = jsonObj.getDouble("lat");
 			 myLon = jsonObj.getDouble("lon");
 			 myLat2 = jsonObj.getDouble("lat2");
