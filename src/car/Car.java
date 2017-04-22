@@ -25,7 +25,7 @@ public class Car {
 	private Location location;
 	private Trip trip = null;
 	private int id;
-	private String licensePlate, brand, type;
+	private String licensePlate, brand, type, color;
 	private Step d = new Step();
 	private int speed = 400; // km/h
 	private int step_position = 0;
@@ -41,12 +41,17 @@ public class Car {
         this.state = State.REQUESTED;
     }
 		
-	public Car(String brandPar, String typePar, String licensePlatePar, Location locationPar, int idPar){
+	public Car(String brandPar, String typePar, String colorPar, String licensePlatePar, Location locationPar, int idPar){
 		brand = brandPar;
 		type = typePar;
+		color = colorPar;
 		licensePlate = licensePlatePar;
 		location = locationPar;
 		id = idPar;
+	}
+	
+	public int getId() {
+		return this.id;
 	}
 
 	public boolean requestCar(int tripId, Location from, Location to) { //TODO
@@ -110,15 +115,10 @@ public class Car {
 			return false;
 		}
 	}
-
-    /**
-     *
-     * @return success : returns false if registration failed
-     * @throws IOException
-     */
-	public boolean register() throws IOException {
+	
+	public boolean login() throws IOException {
 	    // the JSON-load contains carId, location and address as a String in format ID - LAT - LONG - x.x.x.x:yyyy/somepath
-        URL url = new URL(managingServer + "/api/car/register");
+        URL url = new URL(managingServer + "/api/car/signin");
         URLConnection con = url.openConnection();
         HttpURLConnection http = (HttpURLConnection) con;
 
@@ -167,6 +167,76 @@ public class Car {
                 response.append(output);
             }
             in.close();
+            System.out.println("Response to Login: " + response.toString());
+        }
+
+//        catch (IOException io) {
+//            http.getErrorStream().close();
+//        }
+
+        finally {
+            http.disconnect();
+        }
+
+        return result;
+    }
+
+    /**
+     *
+     * @return success : returns false if registration failed
+     * @throws IOException
+     */
+	public boolean register() throws IOException {
+	    // the JSON-load contains carId, location and address as a String in format ID - LAT - LONG - x.x.x.x:yyyy/somepath
+        URL url = new URL(managingServer + "/api/car");
+        URLConnection con = url.openConnection();
+        HttpURLConnection http = (HttpURLConnection) con;
+
+        boolean result = true;
+
+        try {
+            http.setRequestMethod("POST");
+            http.setDoOutput(true); // Indicates that we are going to send data over the connection
+
+            byte[] out = ("{\"id\" : " + "\"" + this.licensePlate + "\","
+                    + "\"make\" : " + "\"" + this.brand + "\","
+                    + "\"model\" : " + "\"" + this.type + "\","
+                    + "\"color\" : " + "\"" + this.color + "\"}").getBytes(StandardCharsets.UTF_8); //TODO put actual ip-address of car
+            int length = out.length;
+
+            http.setFixedLengthStreamingMode(length);
+            http.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            http.connect();
+
+            OutputStream os = http.getOutputStream();
+            os.write(out);
+
+            int statusCode = http.getResponseCode();
+            System.out.println("Status " + statusCode);
+            
+
+            InputStream is = null;
+
+            if (statusCode >= 200 && statusCode < 400) {
+                // Create an InputStream in order to extract the response object
+                is = http.getInputStream();
+            }
+            else {
+                result = false;
+                is = http.getErrorStream();
+            }
+
+
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(is));
+
+            String output;
+            StringBuffer response = new StringBuffer();
+
+            while ((output = in.readLine()) != null) {
+                response.append(output);
+            }
+            in.close();
             System.out.println("Response to Registration: " + response.toString());
         }
 
@@ -180,6 +250,71 @@ public class Car {
 
         return result;
     }
+	
+	public boolean logout() throws IOException {
+	    // the JSON-load contains carId, location and address as a String in format ID - LAT - LONG - x.x.x.x:yyyy/somepath
+        URL url = new URL(managingServer + "/api/car/signout");
+        URLConnection con = url.openConnection();
+        HttpURLConnection http = (HttpURLConnection) con;
+
+        boolean result = true;
+
+        try {
+            http.setRequestMethod("POST");
+            http.setDoOutput(true); // Indicates that we are going to send data over the connection
+
+            byte[] out = ("{\"id\" : " + "\"" + this.licensePlate
+                     + "\"}").getBytes(StandardCharsets.UTF_8); //TODO put actual ip-address of car
+            int length = out.length;
+
+            http.setFixedLengthStreamingMode(length);
+            http.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            http.connect();
+
+            OutputStream os = http.getOutputStream();
+            os.write(out);
+
+            int statusCode = http.getResponseCode();
+            System.out.println("Status " + statusCode);
+            
+
+            InputStream is = null;
+
+            if (statusCode >= 200 && statusCode < 400) {
+                // Create an InputStream in order to extract the response object
+                is = http.getInputStream();
+            }
+            else {
+                result = false;
+                is = http.getErrorStream();
+            }
+
+
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(is));
+
+            String output;
+            StringBuffer response = new StringBuffer();
+
+            while ((output = in.readLine()) != null) {
+                response.append(output);
+            }
+            in.close();
+            System.out.println("Response to Logout: " + response.toString());
+        }
+
+//        catch (IOException io) {
+//            http.getErrorStream().close();
+//        }
+
+        finally {
+            http.disconnect();
+        }
+
+        return result;
+    }
+	
+	
 
     public enum messageType {
         START, END

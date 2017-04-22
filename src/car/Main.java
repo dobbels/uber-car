@@ -1,5 +1,6 @@
 package car;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 
@@ -8,8 +9,15 @@ public class Main {
 	public static void main(String[] args) throws IOException {
 		System.out.println("START TEST");
 
-		Car car = PoolOfCar.getCar();
-		car.register();
+		Car car1 = PoolOfCar.getCar();
+		ArrayList<Car> cars = new ArrayList<Car>();
+		for (int i = 0; i < cars.size(); i++) {
+			Car car = cars.get(i);
+			if (!TxtFileHandler.isRegistered(car.getId())) {
+				car.register();
+			}
+		}
+		//car.register();
 
 //		System.out.println("REGISTER AT SERVER");
 //		boolean registerResult = car.register();
