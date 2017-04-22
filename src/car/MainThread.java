@@ -14,7 +14,7 @@ public class MainThread implements Runnable {
 		
 		s.events = new ArrayList<Object>();
 		Movement m = new Movement();
-		m.car = PoolOfCar.getCar();
+		m.car = PoolOfCar.getCar(0);
 		s.addEvent(m);
 		s.doAllEvents();
 	}

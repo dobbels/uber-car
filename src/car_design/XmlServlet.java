@@ -57,7 +57,7 @@ public class XmlServlet extends HttpServlet {
 		//   and (1) add event to the right thread (2) add event to a single main thread but with argument "car_id".
 		// Create array of simulators and threads or implement multiple cars in one simulator (in main thread java)
 
-		Car c = PoolOfCar.getCar();
+		Car c = PoolOfCar.getCar(0);
 		System.out.println(c);
 
 		if (c.isFree()) {

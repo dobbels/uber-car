@@ -9,12 +9,14 @@ public class Main {
 	public static void main(String[] args) throws IOException {
 		System.out.println("START TEST");
 
-		Car car1 = PoolOfCar.getCar();
 		ArrayList<Car> cars = new ArrayList<Car>();
 		for (int i = 0; i < cars.size(); i++) {
 			Car car = cars.get(i);
 			if (!TxtFileHandler.isRegistered(car.getId())) {
-				car.register();
+				if (car.register()) {
+					TxtFileHandler.addRegisteredCar(car.getId());
+				}
+				
 			}
 		}
 		//car.register();
