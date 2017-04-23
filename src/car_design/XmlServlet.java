@@ -57,7 +57,8 @@ public class XmlServlet extends HttpServlet {
 		Car car = null;
 
 		for (Car c : cars) {
-			if (c.getLicensePlate() == licensePlate) {
+			System.out.println(c.getLicensePlate());
+			if (c.getLicensePlate().equals(licensePlate)) {
                 car = c;
 			    break;
             }
@@ -69,7 +70,7 @@ public class XmlServlet extends HttpServlet {
             response.setStatus(410);
             response.getWriter().println("Car with this license plate does not exist");
         }
-		else if (car.isFree()) {
+		else if (car.isFree() && car.isLoggedIn()) {
 			System.out.println("Dispatch is recognized successfully!");
 			System.out.println("myId is: " + myTripId);
 			System.out.println("myCarId is: " + myCarId);
@@ -90,7 +91,7 @@ public class XmlServlet extends HttpServlet {
 		else{
 			System.out.println("Error! Something went wrong!");
 			response.setStatus(400);
-			response.getWriter().println("Car is not available");
+			response.getWriter().println("Car is not available or not logged in");
 		}
 	}
 }

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class MainThread implements Runnable {
 	
 	public Simulator s = new Simulator();
-	private int carId;
+	private int carId; //TODO use license plate and when getCar search through the array for license
 
 	public MainThread(int carId) {
 		this.carId = carId;

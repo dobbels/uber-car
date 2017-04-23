@@ -25,6 +25,7 @@ public class Car {
 	private Location location;
 	private Trip trip = null;
 	private int id;
+	private boolean loggedIn = true;
 	private String licensePlate, brand, type, color;
 	private Step d = new Step();
 	private int speed = 400; // km/h
@@ -52,6 +53,10 @@ public class Car {
 	
 	public int getId() {
 		return this.id;
+	}
+	
+	public boolean isLoggedIn() {
+		return this.loggedIn;
 	}
 
 	public String getLicensePlate() { return this.licensePlate; }
@@ -152,6 +157,7 @@ public class Car {
             if (statusCode >= 200 && statusCode < 400) {
                 // Create an InputStream in order to extract the response object
                 is = http.getInputStream();
+                this.loggedIn = true;
             }
             else {
                 result = false;
@@ -285,6 +291,7 @@ public class Car {
             if (statusCode >= 200 && statusCode < 400) {
                 // Create an InputStream in order to extract the response object
                 is = http.getInputStream();
+                this.loggedIn = false;
             }
             else {
                 result = false;
@@ -428,9 +435,9 @@ public class Car {
     
     public void move() throws InterruptedException {
     	//Movement has to be programmed
-    	System.out.println("Car is moving");
+    	System.out.println("Car " + this.licensePlate +" is moving");
     	if (d.getDistance() > 0) {
-    		System.out.println("Moving to a destination");
+    		System.out.println("Car " + this.licensePlate + " is moving to a destination");
     		int dist = (speed * 1000)/3600;
     		if (d.advance(dist)) {
     			//reached end of step
@@ -440,7 +447,7 @@ public class Car {
     	}
     	else if(d.getDistance() <= 0) {
     		//movement does nothing because car doesn't have destination
-    		System.out.println("no destination");
+    		System.out.println("Car " + this.licensePlate +" has no destination");
     		TimeUnit.SECONDS.sleep(1);
     	}
     	
@@ -448,9 +455,9 @@ public class Car {
     }
     
     public boolean assignPassenger() {
-    	System.out.println("Passenger is assigned");
+    	System.out.println("Car " + this.licensePlate +" has a passenger assigned");
     	if (this.state == State.REQUESTED) {
-    		System.out.println("calculating passenger destination");
+    		System.out.println("Car " + this.licensePlate + " is calculating passenger destination");
     		try {
 				calculateRoute();
 			} catch (Exception e) {
@@ -527,8 +534,8 @@ public class Car {
 		double lat = (double) loc.get("lat");
 		double lng = (double) loc.get("lng");
 		
-		System.out.println("steps: ");
-		System.out.println(steps.size());
+		//System.out.println("steps: ");
+		//System.out.println(steps.size());
 		
 		//System.out.println(i);
 		//JSONObject dis = (JSONObject) ((JSONObject) i.get(0)).get("distance");
@@ -539,7 +546,7 @@ public class Car {
     }
     
     public void next_step() {
-    	System.out.println("I am in step: " + step_position);
+    	System.out.println("Car " + this.licensePlate + "  is in step: " + step_position);
     	if (step_position >= steps.size()) {
     		if (this.state == State.REQUESTED) {
 				this.location = this.trip.getFrom();

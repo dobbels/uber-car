@@ -10,8 +10,10 @@ public class PoolOfMainThread {
 
     public static ArrayList<MainThread> convertCarsToMainThreads() {
         ArrayList<MainThread> aot = new ArrayList<>();
-        for (int i = 0; i < PoolOfCar.getCars().size(); i++)
-            aot.add(i, new MainThread(PoolOfCar.getCar(i).getId()));
+        for (int i = 0; i < PoolOfCar.getCars().size(); i++) {
+        	System.out.println("loop " + i);
+        	aot.add(i, new MainThread(PoolOfCar.getCar(i).getId()));
+        }   
         return aot;
     }
 
