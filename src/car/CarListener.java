@@ -16,7 +16,9 @@ public class CarListener implements javax.servlet.ServletContextListener {
 		for (Car car : PoolOfCar.getCars()) {
 			if (car.isLoggedIn()) {
 				try {
-					car.logout();
+					if (car.logout()) {
+						PoolOfMainThread.getMainThreads().get(PoolOfCar.getCars().indexOf(car)).getSimulator().terminate();
+					}
 					System.out.println("Car " + car.getId() + " with license plate " + car.getLicensePlate() + " is logged out.");
 				} catch (IOException e) {
 					// TODO Auto-generated catch block

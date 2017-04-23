@@ -10,8 +10,8 @@ public class AbstractSimulator {
         events.add(e);
     }
     
-    AbstractEvent cancel(AbstractEvent e)  {
-        throw new java.lang.RuntimeException("Method not implemented");
+    void terminate()  {
+        events.clear();
     }
 
 }
