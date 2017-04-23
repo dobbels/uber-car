@@ -18,8 +18,12 @@ public class PoolOfCar {
 	
 
 	
-	static public Car getCar(int i) {
-		return cars.get(i);
+	static public Car getCar(int carId) {
+		for (Car c : cars) {
+			if (c.getId() == carId)
+				return c;
+		}
+		return null;
 	} //TODO change i to carId and see that every usage is correctly used
 	
 	static public ArrayList<Car> getCars(){
