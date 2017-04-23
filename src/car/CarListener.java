@@ -10,12 +10,20 @@ public class CarListener implements javax.servlet.ServletContextListener {
 	@Override
 	public void contextDestroyed(ServletContextEvent arg0) {
 
-		//TODO first close down threads and then logout
-        //TODO use this to log out cars ??
-        //TODO make sure that tomcat server is closed every time by opening the Servers view and rightclicking the server instance and choosing Stop, or by hitting the red button in the Servers view whose tooltip says Stop the server.
+		//TODO make sure that tomcat server is closed every time by opening the Servers view and rightclicking the server instance and choosing Stop, or by hitting the red button in the Servers view whose tooltip says Stop the server.
         // This method will not be called when you terminate the server altogether by hitting the red button in the Console view whose tooltip says Terminate. Terminating (killing) is not the same as stopping.
-		System.out.println("stopped");
-		
+		System.out.println("Closing down");
+		for (Car car : PoolOfCar.getCars()) {
+			if (car.isLoggedIn()) {
+				try {
+					car.logout();
+					System.out.println("Car " + car.getId() + " with license plate " + car.getLicensePlate() + " is logged out.");
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	@Override
