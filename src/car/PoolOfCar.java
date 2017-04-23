@@ -24,7 +24,7 @@ public class PoolOfCar {
 				return c;
 		}
 		return null;
-	} //TODO change i to carId and see that every usage is correctly used
+	}
 	
 	static public ArrayList<Car> getCars(){
 		return cars;
