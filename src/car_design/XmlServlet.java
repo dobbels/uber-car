@@ -66,7 +66,7 @@ public class XmlServlet extends HttpServlet {
         // TODO  and (1) add event to the right thread (2) add event to a single main thread but with argument "car_id".
 		// Create array of simulators and threads or implement multiple cars in one simulator (in main thread java)
         // Halve solution if we don't find anything else: associate events with particular cars, so that we can have one static simulator and one MainThread
-        // Or make a PoolOfMainThreads similar to PoolOfCars and act on that. 
+        // Or make a PoolOfMainThreads similar to PoolOfCars and act on that.
 
         // If car doesn't exist, send error message (with specific code 410)
         if (car == null) {
