@@ -4,12 +4,20 @@ import java.util.ArrayList;
 
 public class MainThread implements Runnable {
 	
-	public static Simulator s = new Simulator();
-//	private int carId;
+	public Simulator s = new Simulator();
+	private int carId;
 
-//	public MainThread(int carId) {
-//		this.carId = carId;
-//	}
+	public MainThread(int carId) {
+		this.carId = carId;
+	}
+
+	public int getCarId() {
+	    return carId;
+    }
+
+    public Simulator getSimulator(){
+	    return s;
+    }
 
 	@Override
 	public void run() {
@@ -18,7 +26,7 @@ public class MainThread implements Runnable {
 		
 		s.events = new ArrayList<>();
 		Movement m = new Movement();
-		m.car = PoolOfCar.getCar(0); //TODO change
+		m.car = PoolOfCar.getCar(carId);
 		s.addEvent(m);
 		s.doAllEvents();
 	}
