@@ -6,25 +6,28 @@ import java.util.Scanner;
 public class TxtFileHandler {
 
     public static void main(String[] args) {
-//        try {
-//            addRegisteredCar(1);
-//            addRegisteredCar(4);
-//            addRegisteredCar(8);
-//            addRegisteredCar(6);
-//            addRegisteredCar(1);
-//            addRegisteredCar(4);
-//            addRegisteredCar(8);
-//            addRegisteredCar(6);
-//            addRegisteredCar(15);
-//            addRegisteredCar(10);
-//            addRegisteredCar(4);
-        System.out.println(isRegistered(1));
-        System.out.println(isRegistered(5));
-        System.out.println(isRegistered(12));
-        System.out.println(isRegistered(15));
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            addRegisteredCar(1);
+            addRegisteredCar(2);
+            addRegisteredCar(3);
+            addRegisteredCar(4);
+            addRegisteredCar(5);
+            addRegisteredCar(6);
+            addRegisteredCar(7);
+            addRegisteredCar(8);
+            addRegisteredCar(9);
+            removeRegisteredCar(1);
+            removeRegisteredCar(4);
+            removeRegisteredCar(8);
+            removeRegisteredCar(6);
+            addRegisteredCar(4); // should not write 4 two times
+            System.out.println(isRegistered(1));
+            System.out.println(isRegistered(5));
+            System.out.println(isRegistered(9));
+            System.out.println(isRegistered(15));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static boolean removeRegisteredCar(int i) throws IOException { // TODO also throw NotRegisteredException when not registered ?

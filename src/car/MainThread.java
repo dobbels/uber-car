@@ -11,6 +11,14 @@ public class MainThread implements Runnable {
 		this.carId = carId;
 	}
 
+	public int getCarId() {
+	    return carId;
+    }
+
+    public Simulator getSimulator(){
+	    return s;
+    }
+
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
