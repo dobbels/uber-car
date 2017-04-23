@@ -41,7 +41,7 @@ public class Car {
         this.trip = trip;
         this.state = State.REQUESTED;
     }
-		
+	
 	public Car(String brandPar, String typePar, String colorPar, String licensePlatePar, Location locationPar, int idPar){
 		brand = brandPar;
 		type = typePar;
@@ -100,7 +100,7 @@ public class Car {
 		return result;
 	}
 	
-	public boolean atEndDestination(){
+	public boolean atEndDestination() {
 		if (this.trip == null) {
 			return false;
 		}
@@ -196,7 +196,7 @@ public class Car {
      */
 	public boolean register() throws IOException {
 	    // the JSON-load contains carId, location and address as a String in format ID - LAT - LONG - x.x.x.x:yyyy/somepath
-        URL url = new URL(managingServer + "/api/car");
+        URL url = new URL(managingServer + "/api/car/register");
         URLConnection con = url.openConnection();
         HttpURLConnection http = (HttpURLConnection) con;
 

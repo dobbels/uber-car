@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 public class TxtFileHandler {
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         try {
             addRegisteredCar(1);
             addRegisteredCar(2);
@@ -28,7 +28,24 @@ public class TxtFileHandler {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+    }*/
+	
+	public static void main(String[] args) {
+		for (Car car : PoolOfCar.getCars()) {
+			if (!isRegistered(car.getId())) {
+				System.out.println("registering car " + car.getId());
+				try {
+					if (car.register()) {
+						addRegisteredCar(car.getId());
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
 
     public static boolean removeRegisteredCar(int i) throws IOException { // TODO also throw NotRegisteredException when not registered ?
         File inputFile = new File("registered-cars.txt");
