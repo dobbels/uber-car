@@ -25,7 +25,7 @@ public class Car {
 	private Location location;
 	private Trip trip = null;
 	private int id;
-	private boolean loggedIn = true;
+	private boolean loggedIn = false;
 	private String licensePlate, brand, type, color;
 	private Step d = new Step();
 	private int speed = 400; // km/h
@@ -35,7 +35,7 @@ public class Car {
 	
 	private final String USER_AGENT = "Mozilla/5.0";
 
-	private String managingServer = "http://172.20.10.14:5000";
+	private String managingServer = "https://uber-server.herokuapp.com";
 
     public void setTrip(Trip trip) {
         this.trip = trip;

@@ -21,6 +21,26 @@ public class CarListener implements javax.servlet.ServletContextListener {
 	@Override
 	public void contextInitialized(ServletContextEvent arg0) {
 		// TODO Auto-generated method stub
+		for (Car car : PoolOfCar.getCars()) {
+			if (!TxtFileHandler.isRegistered(car.getId())) {
+				try {
+					TxtFileHandler.addRegisteredCar(car.getId());
+					car.register();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			if (!car.isLoggedIn()) {
+				try {
+					car.login();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		
         for (MainThread mt : PoolOfMainThread.getMainThreads())
             new Thread(mt).start();
         System.out.println("Threads started up");
