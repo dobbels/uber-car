@@ -35,13 +35,14 @@ public class XmlServlet extends HttpServlet {
 		}
 		reader.close();
 		JSONObject jsonObj;
-		int myId = 0; int myCarId = 0;
+		int myTripId = 0;
+		int myCarId = 0; String licensePlate = "dummy"; // boolean matchingCarFound = false;
 		double myLat = -1, myLon = -1, myLat2 = -1, myLon2 = -1;
 		System.out.println(str);
 		try {
 			 jsonObj = new JSONObject(str);     //JSONObject contains the received data
-			 myId = jsonObj.getInt("trip_id");       //Gets the value of "id" key from JSONObject
-			 myCarId = jsonObj.getInt("car_id");
+			 myTripId = jsonObj.getInt("trip_id");       //Gets the value of "id" key from JSONObject
+			 licensePlate = jsonObj.getString("car_id");
 			 myLat = jsonObj.getDouble("lat");
 			 myLon = jsonObj.getDouble("lon");
 			 myLat2 = jsonObj.getDouble("lat2");
@@ -52,28 +53,42 @@ public class XmlServlet extends HttpServlet {
 			e1.printStackTrace();
 		}
 
-		// If car doesn't exist, send error message (with specific code 410)
-		// If it exists, look in pool of car, check if it's free on index "car_id" - 1
-		//   and (1) add event to the right thread (2) add event to a single main thread but with argument "car_id".
+		ArrayList<Car> cars = PoolOfCar.getCars();
+		Car car = null;
+
+		for (Car c : cars) {
+			if (c.getLicensePlate() == licensePlate) {
+                car = c;
+			    break;
+            }
+		}
+
+        // TODO  and (1) add event to the right thread (2) add event to a single main thread but with argument "car_id".
 		// Create array of simulators and threads or implement multiple cars in one simulator (in main thread java)
+        // Halve solution if we don't find anything else: associate events with particular cars, so that we can have one static simulator and one MainThread
+        // Or make a PoolOfMainThreads similar to PoolOfCars and act on that. 
 
-		Car c = PoolOfCar.getCar(0);
-		System.out.println(c);
-
-		if (c.isFree()) {
+        // If car doesn't exist, send error message (with specific code 410)
+        if (car == null) {
+            System.out.println("Trip id " + Integer.toString(myTripId) + ": no matching car found!");
+            response.setStatus(410);
+            response.getWriter().println("Car with this license plate does not exist");
+        }
+		else if (car.isFree()) {
 			System.out.println("Dispatch is recognized successfully!");
-			System.out.println("myId is: " + myId);
+			System.out.println("myId is: " + myTripId);
 			System.out.println("myCarId is: " + myCarId);
-			System.out.println("myLat is: " + myLat);
+            System.out.println("my licensePlate is: " + licensePlate);
+            System.out.println("myLat is: " + myLat);
 			System.out.println("myLon is: "+ myLon);
 			System.out.println("myLat2 is: "+ myLat2);
 			System.out.println("myLon2 is: " +myLon2);
 			response.setStatus(200);
 
-			Trip trip = new Trip(myId, new Location(myLat,myLon), new Location(myLat2,myLon2));
-			c.setTrip(trip);
+			Trip trip = new Trip(myTripId, new Location(myLat,myLon), new Location(myLat2,myLon2));
+			car.setTrip(trip);
 			CarToPassenger ctp = new CarToPassenger();
-			ctp.car = c;
+			ctp.car = car;
 			MainThread.s.addEvent(ctp);
 			response.getWriter().println("OK");
 		}

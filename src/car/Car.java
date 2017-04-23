@@ -54,6 +54,8 @@ public class Car {
 		return this.id;
 	}
 
+	public String getLicensePlate() { return this.licensePlate; }
+
 	public boolean requestCar(int tripId, Location from, Location to) { //TODO
 	    boolean result = false;
 	    switch (this.state) {
