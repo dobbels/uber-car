@@ -1,5 +1,11 @@
 package car;
 
+import io.ably.lib.realtime.AblyRealtime;
+import io.ably.lib.realtime.Channel;
+import io.ably.lib.realtime.CompletionListener;
+import io.ably.lib.types.AblyException;
+import io.ably.lib.types.ErrorInfo;
+
 import java.io.*;
 import java.util.Scanner;
 
@@ -30,7 +36,7 @@ public class TxtFileHandler {
         }
     }*/
 	
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		for (Car car : PoolOfCar.getCars()) {
 			if (!isRegistered(car.getId())) {
 				System.out.println("registering car " + car.getId());
@@ -43,6 +49,31 @@ public class TxtFileHandler {
 					e.printStackTrace();
 				}
 			}
+		}
+	}*/
+	
+	public static void main(String[] args) {
+		AblyRealtime realtime = Constants.getRealtime();
+		try {
+			Channel channel = realtime.channels.get("/trip/1");
+	    	channel.publish("statusChange", "INBOUND", new CompletionListener() {
+
+				@Override
+				public void onError(ErrorInfo arg0) {
+					// TODO Auto-generated method stub
+					System.out.println("Error with reason " + arg0);
+				}
+
+				@Override
+				public void onSuccess() {
+					// TODO Auto-generated method stub
+					System.out.println("Message sent");
+				}
+	    		
+	    	});
+		} catch (AblyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	

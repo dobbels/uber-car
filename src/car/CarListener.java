@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.servlet.ServletContextEvent;
+import io.ably.lib.types.*;
 
 public class CarListener implements javax.servlet.ServletContextListener {
 

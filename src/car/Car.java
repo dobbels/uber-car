@@ -14,6 +14,9 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
+import io.ably.lib.types.*;
+import io.ably.lib.realtime.*;
+
 
 public class Car {
 	
@@ -74,7 +77,7 @@ public class Car {
 	
 	public void passengerGetIn() throws IOException {
 		this.state = State.OCCUPIED;
-		sendTripMessage(messageType.START);
+		sendStatus("STARTED");
 		try {
 			calculateRoute();
 		} catch (Exception e) {
@@ -85,7 +88,7 @@ public class Car {
 	
 	public void passengerGetOut() throws IOException {
 		this.state = State.FREE;
-		sendTripMessage(messageType.END);
+		sendStatus("ENDED");
 		this.location = this.trip.getTo();
 	}
 	
@@ -442,6 +445,7 @@ public class Car {
     		if (d.advance(dist)) {
     			//reached end of step
     			this.location = d.getLocation();
+    			sendLocation();
     			next_step();
     		}
     	}
@@ -457,6 +461,7 @@ public class Car {
     public boolean assignPassenger() {
     	System.out.println("Car " + this.licensePlate +" has a passenger assigned");
     	if (this.state == State.REQUESTED) {
+    		sendStatus("INBOUND");
     		System.out.println("Car " + this.licensePlate + " is calculating passenger destination");
     		try {
 				calculateRoute();
@@ -533,6 +538,8 @@ public class Car {
 		JSONObject loc = (JSONObject) step.get("end_location");
 		double lat = (double) loc.get("lat");
 		double lng = (double) loc.get("lng");
+		Location l = new Location(lat, lng);
+		d.setLocation(l);
 		
 		//System.out.println("steps: ");
 		//System.out.println(steps.size());
@@ -550,9 +557,11 @@ public class Car {
     	if (step_position >= steps.size()) {
     		if (this.state == State.REQUESTED) {
 				this.location = this.trip.getFrom();
+				sendLocation();
 			}
 			else if (this.state == State.OCCUPIED) {
 				this.location = this.trip.getTo();
+				sendLocation();
 			}
     		step_position = 0;
     	}
@@ -568,6 +577,63 @@ public class Car {
     		Location l = new Location(lat, lng);
     		d.setLocation(l);
     	}
+    }
+    
+    public void sendStatus(String message) {
+    	//send status to ably 
+    	AblyRealtime realtime = Constants.getRealtime();
+		try {
+			Channel channel = realtime.channels.get("/trip/"+ this.trip.getId());
+	    	channel.publish("statusChange", message, new CompletionListener() {
+
+				@Override
+				public void onError(ErrorInfo arg0) {
+					// TODO Auto-generated method stub
+					System.out.println("Error with reason " + arg0);
+				}
+
+				@Override
+				public void onSuccess() {
+					// TODO Auto-generated method stub
+					System.out.println("Message sent");
+				}
+	    		
+	    	});
+		} catch (AblyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
+    }
+    
+    public void sendLocation() {
+    	//send location to ably
+    	AblyRealtime realtime = Constants.getRealtime();
+		try {
+			Channel channel = realtime.channels.get("/car/"+ this.licensePlate);
+			String message = "{\"lat\" : " + "\"" + this.location.getLatitude() + "\","
+                    + "\"lon\" : " + "\"" + this.location.getLongitude() + "\"}";
+			
+			
+	    	channel.publish("locationChange", message, new CompletionListener() {
+
+				@Override
+				public void onError(ErrorInfo arg0) {
+					// TODO Auto-generated method stub
+					System.out.println("Error with reason " + arg0);
+				}
+
+				@Override
+				public void onSuccess() {
+					// TODO Auto-generated method stub
+					System.out.println("Message sent");
+				}
+	    		
+	    	});
+		} catch (AblyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
     
     
