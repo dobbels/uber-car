@@ -20,7 +20,7 @@ public class PoolOfCar {
 	
 	static public Car getCar(int i) {
 		return cars.get(i);
-	}
+	} //TODO change i to carId and see that every usage is correctly used
 	
 	static public ArrayList<Car> getCars(){
 		return cars;
