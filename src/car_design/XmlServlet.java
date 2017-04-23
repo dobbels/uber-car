@@ -14,6 +14,7 @@ import org.json.JSONException;
 import org.json.JSONObject;                        //Using JSONObject class
 
 import car.*;
+import sun.security.pkcs11.SessionManager;
 
 public class XmlServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -89,7 +90,7 @@ public class XmlServlet extends HttpServlet {
 			car.setTrip(trip);
 			CarToPassenger ctp = new CarToPassenger();
 			ctp.car = car;
-			MainThread.s.addEvent(ctp);
+			PoolOfMainThread.getMainThreads().get(PoolOfCar.getCars().indexOf(car)).s.addEvent(ctp);
 			response.getWriter().println("OK");
 		}
 		else{

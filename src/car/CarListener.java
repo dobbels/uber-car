@@ -23,11 +23,6 @@ public class CarListener implements javax.servlet.ServletContextListener {
 		new Thread(t).start();
         System.out.println("Thread started up");
 
-//        ArrayList<MainThread> ts = new ArrayList<>();
-
-//        for (int i=0;i<PoolOfCar.getCars().size();i++)
-//            ts.add(i, new MainThread(PoolOfCar.getCar(i).getId()));
-
 //        for (int i=0;i<PoolOfCar.getCars().size();i++)
 //            new Thread(ts.get(i)).start();
 
