@@ -1,0 +1,18 @@
+<!DOCTYPE web-app PUBLIC
+ "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+ "http://java.sun.com/dtd/web-app_2_3.dtd" >
+
+<web-app>
+  <display-name>Archetype Created Web Application</display-name>
+  <listener>
+	    <listener-class>model.CarListener</listener-class>
+	</listener>
+	<servlet>
+		<servlet-name>xmlServlet</servlet-name>
+		<servlet-class>server.XmlServlet</servlet-class>  <!-- my package name is car_design -->
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>xmlServlet</servlet-name>
+		<url-pattern>/api/dispatch</url-pattern>           <!-- url address for running -->
+	</servlet-mapping>
+</web-app>

@@ -7,4 +7,5 @@ out
 *.class
 .settings
 .idea
+.gradle
 
